@@ -5,7 +5,7 @@ import io.javalin.Javalin;
 public class IngestionServiceApp {
 
     public static void main(String[] args) {
-        Javalin app = Javalin.create().start(7030);
+        Javalin app = Javalin.create().start(7030);  // creates a web server using Javalin
 
         app.get("/health", ctx -> ctx.result("OK"));
 
