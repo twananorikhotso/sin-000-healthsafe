@@ -31,4 +31,26 @@ public class WardCsvReader {
 
         return lines;
     }
+
+    public List<Ward> readWards() throws IOException {
+        List<String> lines = readLines();
+        List<Ward> wards = new ArrayList<>();
+
+        for (int i = 1; i < lines.size(); i++) {
+            String line = lines.get(i);
+
+            String[] columns = line.split(",", -1);
+
+            Ward ward = new Ward(
+                    columns[0],
+                    columns[1],
+                    columns[2],
+                    columns[3]
+            );
+
+            wards.add(ward);
+        }
+
+        return wards;
+    }
 }
