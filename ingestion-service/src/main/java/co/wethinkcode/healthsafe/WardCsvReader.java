@@ -32,6 +32,50 @@ public class WardCsvReader {
         return lines;
     }
 
+    private String cleanText(String value) {
+        return value.trim().replaceAll("\\s+", " ");
+    }
+
+    private String cleanWardId(String value) {
+        return cleanText(value).toUpperCase();
+    }
+
+    private String cleanWingName(String value) {
+        String cleaned = cleanText(value).toLowerCase();
+
+        String[] words = cleaned.split(" ");
+        StringBuilder result = new StringBuilder();
+
+        for (String word : words) {
+            result.append(Character.toUpperCase(word.charAt(0)))
+                    .append(word.substring(1))
+                    .append(" ");
+        }
+
+        return result.toString().trim();
+    }
+
+    private String cleanDepartment(String value) {
+        String cleaned = cleanText(value);
+
+        if (cleaned.equalsIgnoreCase("ICU")) {
+            return "ICU";
+        }
+
+        cleaned = cleaned.toLowerCase();
+
+        String[] words = cleaned.split(" ");
+        StringBuilder result = new StringBuilder();
+
+        for (String word : words) {
+            result.append(Character.toUpperCase(word.charAt(0)))
+                    .append(word.substring(1))
+                    .append(" ");
+        }
+
+        return result.toString().trim();
+    }
+
     public List<Ward> readWards() throws IOException {
         List<String> lines = readLines();
         List<Ward> wards = new ArrayList<>();
@@ -42,9 +86,9 @@ public class WardCsvReader {
             String[] columns = line.split(",", -1);
 
             Ward ward = new Ward(
-                    columns[0],
-                    columns[1],
-                    columns[2],
+                    cleanWardId(columns[0]),
+                    cleanWingName(columns[1]),
+                    cleanDepartment(columns[2]),
                     columns[3]
             );
 
