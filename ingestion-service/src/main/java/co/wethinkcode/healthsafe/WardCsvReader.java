@@ -36,7 +36,7 @@ public class WardCsvReader {
         return value.trim().replaceAll("\\s+", " ");
     }
 
-    private String cleanWardId(String value) {
+    String cleanWardId(String value) {
         if (isMissingValue(value)) {
             return "Unknown";
         }
@@ -44,7 +44,7 @@ public class WardCsvReader {
         return cleanText(value).toUpperCase();
     }
 
-    private String cleanWingName(String value) {
+    String cleanWingName(String value) {
         if (isMissingValue(value)) {
             return "Unknown";
         }
@@ -63,7 +63,7 @@ public class WardCsvReader {
         return result.toString().trim();
     }
 
-    private String cleanDepartment(String value) {
+    String cleanDepartment(String value) {
         if (isMissingValue(value)) {
             return "Unknown";
         }
@@ -88,7 +88,7 @@ public class WardCsvReader {
         return result.toString().trim();
     }
 
-    private String cleanBedCount(String value) {
+    String cleanBedCount(String value) {
         String cleaned = cleanText(value);
 
         if (cleaned.equalsIgnoreCase("N/A")
