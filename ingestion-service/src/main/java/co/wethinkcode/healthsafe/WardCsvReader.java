@@ -11,6 +11,51 @@ import java.util.Set;
 
 public class WardCsvReader {
 
+    private final List<String> validationMessages = new ArrayList<>();
+
+    public List<String> getValidationMessages() {
+        return new ArrayList<>(validationMessages);
+    }
+
+    private void validateBedCount(String wardId, String value) {
+        String cleaned = cleanText(value);
+
+        if (cleaned.equalsIgnoreCase("full")) {
+            validationMessages.add(
+                    wardId + ": bed count 'full' converted to 0"
+            );
+            return;
+        }
+
+        if (cleaned.equalsIgnoreCase("five")) {
+            validationMessages.add(
+                    wardId + ": bed count 'five' converted to 5"
+            );
+            return;
+        }
+
+        try {
+            int beds = Integer.parseInt(cleaned);
+
+            if (beds < 0) {
+                validationMessages.add(
+                        wardId + ": negative bed count '" + cleaned + "' converted to 0"
+                );
+            } else if (beds > 500) {
+                validationMessages.add(
+                        wardId + ": unrealistic bed count '" + cleaned + "' converted to 0"
+                );
+            }
+
+        } catch (NumberFormatException e) {
+            if (!isMissingValue(cleaned)) {
+                validationMessages.add(
+                        wardId + ": invalid bed count '" + cleaned + "' converted to 0"
+                );
+            }
+        }
+    }
+
     public List<String> readLines() throws IOException {
         InputStream inputStream =
                 getClass().getClassLoader().getResourceAsStream("wards-outdated.csv");
@@ -120,6 +165,8 @@ public class WardCsvReader {
     }
 
     public List<Ward> readWards() throws IOException {
+        validationMessages.clear();
+
         List<String> lines = readLines();
         List<Ward> wards = new ArrayList<>();
         Set<String> seenWardIds = new HashSet<>();
@@ -129,11 +176,23 @@ public class WardCsvReader {
 
             String[] columns = line.split(",", -1);
 
+            if (columns.length < 4) {
+                validationMessages.add(
+                        "Row " + (i + 1) + ": malformed row skipped"
+                );
+                continue;
+            }
+
             String wardId = cleanWardId(columns[0]);
 
             if (seenWardIds.contains(wardId)) {
+                validationMessages.add(
+                        wardId + ": duplicate ward skipped"
+                );
                 continue;
             }
+
+            validateBedCount(wardId, columns[3]);
 
             Ward ward = new Ward(
                     wardId,
