@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class WardCsvReader {
 
@@ -99,10 +101,14 @@ public class WardCsvReader {
             return "0";
         }
 
+        if (cleaned.equalsIgnoreCase("five")) {
+            return "5";
+        }
+
         try {
             int beds = Integer.parseInt(cleaned);
 
-            if (beds < 0) {
+            if (beds < 0 || beds > 500) {
                 return "0";
             }
 
@@ -116,20 +122,28 @@ public class WardCsvReader {
     public List<Ward> readWards() throws IOException {
         List<String> lines = readLines();
         List<Ward> wards = new ArrayList<>();
+        Set<String> seenWardIds = new HashSet<>();
 
         for (int i = 1; i < lines.size(); i++) {
             String line = lines.get(i);
 
             String[] columns = line.split(",", -1);
 
+            String wardId = cleanWardId(columns[0]);
+
+            if (seenWardIds.contains(wardId)) {
+                continue;
+            }
+
             Ward ward = new Ward(
-                    cleanWardId(columns[0]),
+                    wardId,
                     cleanWingName(columns[1]),
                     cleanDepartment(columns[2]),
                     cleanBedCount(columns[3])
             );
 
             wards.add(ward);
+            seenWardIds.add(wardId);
         }
 
         return wards;

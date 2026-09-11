@@ -40,8 +40,10 @@ public class WardCsvReaderTest {
     void shouldHandleInvalidBedCounts() {
         WardCsvReader reader = new WardCsvReader();
 
-        assertEquals("0", reader.cleanBedCount("five"));
-        assertEquals("0", reader.cleanBedCount("-2"));
-        assertEquals("12", reader.cleanBedCount("12"));
+        assertEquals("0", reader.cleanBedCount("full"));
+        assertEquals("0", reader.cleanBedCount("-5"));
+        assertEquals("0", reader.cleanBedCount("2023"));
+        assertEquals("500", reader.cleanBedCount("500"));
+        assertEquals("0", reader.cleanBedCount("501"));
     }
 }
