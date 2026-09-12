@@ -28,6 +28,35 @@ public class WardServiceApp {
             List<Ward> wards = fetchWards();
             ctx.json(wards);
         });
+
+        app.get("/wards/{id}", ctx -> {
+            String wardId = ctx.pathParam("id");
+
+            List<Ward> wards = fetchWards();
+
+            Ward ward = wards.stream()
+                    .filter(item -> item.getWardId().equalsIgnoreCase(wardId))
+                    .findFirst()
+                    .orElse(null);
+
+            if (ward == null) {
+                ctx.status(404).result("Ward not found");
+                return;
+            }
+
+            ctx.json(ward);
+        });
+
+        app.get("/departments", ctx -> {
+            List<Ward> wards = fetchWards();
+
+            List<String> departments = wards.stream()
+                    .map(Ward::getDepartment)
+                    .distinct()
+                    .toList();
+
+            ctx.json(departments);
+        });
     }
 
     private static List<Ward> fetchWards() {
