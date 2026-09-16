@@ -10,7 +10,29 @@ public class AlertLevelServiceApp {
         Javalin app = Javalin.create().start(7032);
 
         app.get("/health", ctx -> ctx.result("OK"));
+
         app.get("/alert-level", ctx -> {
+            ctx.json(new AlertLevelResponse(currentAlertLevel));
+        });
+
+        app.put("/alert-level/{level}", ctx -> {
+            int newLevel;
+
+            try {
+                newLevel = Integer.parseInt(ctx.pathParam("level"));
+            } catch (NumberFormatException e) {
+                ctx.status(400);
+                ctx.result("Alert level must be a number between 0 and 8");
+                return;
+            }
+
+            if (newLevel < 0 || newLevel > 8) {
+                ctx.status(400);
+                ctx.result("Alert level must be between 0 and 8");
+                return;
+            }
+
+            currentAlertLevel = newLevel;
             ctx.json(new AlertLevelResponse(currentAlertLevel));
         });
 
