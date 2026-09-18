@@ -30,8 +30,19 @@ public class StaffingServiceApp {
                     return;
                 }
 
+                HttpResponse<String> alertResponse = getAlertLevel();
+
+                if (alertResponse.statusCode() != 200) {
+                    ctx.status(502).result("Alert Level Service returned an unexpected response");
+                    return;
+                }
+
                 ctx.contentType("application/json");
-                ctx.result(wardResponse.body());
+                ctx.result(
+                        "{\"ward\":" + wardResponse.body()
+                                + ",\"alertLevel\":" + alertResponse.body()
+                                + "}"
+                );
 
             } catch (IOException | InterruptedException e) {
                 ctx.status(503).result("Ward Service is unavailable");
@@ -43,6 +54,9 @@ public class StaffingServiceApp {
     }
 
     private static final String WARD_SERVICE_URL = "http://localhost:7031";
+
+    private static final String ALERT_SERVICE_URL = "http://localhost:7032";
+
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
 
     private static HttpResponse<String> getWard(String wardId)
@@ -50,6 +64,20 @@ public class StaffingServiceApp {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(WARD_SERVICE_URL + "/wards/" + wardId))
+                .GET()
+                .build();
+
+        return HTTP_CLIENT.send(
+                request,
+                HttpResponse.BodyHandlers.ofString()
+        );
+    }
+
+    private static HttpResponse<String> getAlertLevel()
+            throws IOException, InterruptedException {
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(ALERT_SERVICE_URL + "/alert-level"))
                 .GET()
                 .build();
 
