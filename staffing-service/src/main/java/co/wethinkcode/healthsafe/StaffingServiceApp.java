@@ -93,6 +93,43 @@ public class StaffingServiceApp {
                 HttpResponse.BodyHandlers.ofString()
         );
     }
+
+    private static StaffingSchedule createSchedule(String wardId, int alertLevel) {
+
+        if (alertLevel <= 2) {
+            return new StaffingSchedule(
+                    wardId,
+                    alertLevel,
+                    "NORMAL",
+                    1
+            );
+        }
+
+        if (alertLevel <= 5) {
+            return new StaffingSchedule(
+                    wardId,
+                    alertLevel,
+                    "ELEVATED",
+                    2
+            );
+        }
+
+        if (alertLevel <= 7) {
+            return new StaffingSchedule(
+                    wardId,
+                    alertLevel,
+                    "HIGH",
+                    3
+            );
+        }
+
+        return new StaffingSchedule(
+                wardId,
+                alertLevel,
+                "CODE_BLUE",
+                4
+        );
+    }
 }
 
 // MQ TODO: publishes to ActiveMQ topic MqConfig.TOPIC at MqConfig.BROKER_URL (see co.wethinkcode.healthsafe.mq.MqConfig)
