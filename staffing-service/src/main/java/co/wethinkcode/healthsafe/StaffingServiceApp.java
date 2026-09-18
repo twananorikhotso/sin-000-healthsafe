@@ -44,12 +44,19 @@ public class StaffingServiceApp {
                     return;
                 }
 
+                int alertLevel;
+
+                try {
+                    alertLevel = extractAlertLevel(alertResponse.body());
+                } catch (IllegalArgumentException e) {
+                    ctx.status(502).result("Alert Level Service returned invalid data");
+                    return;
+                }
+
+                StaffingSchedule schedule = createSchedule(wardId, alertLevel);
+
                 ctx.contentType("application/json");
-                ctx.result(
-                        "{\"ward\":" + wardResponse.body()
-                                + ",\"alertLevel\":" + alertResponse.body()
-                                + "}"
-                );
+                ctx.json(schedule);
 
             } catch (IOException | InterruptedException e) {
                 ctx.status(503).result("Ward Service is unavailable");
@@ -92,6 +99,16 @@ public class StaffingServiceApp {
                 request,
                 HttpResponse.BodyHandlers.ofString()
         );
+    }
+
+    private static int extractAlertLevel(String responseBody) {
+        String digits = responseBody.replaceAll("[^0-9]", "");
+
+        if (digits.isEmpty()) {
+            throw new IllegalArgumentException("Invalid alert level response");
+        }
+
+        return Integer.parseInt(digits);
     }
 
     private static StaffingSchedule createSchedule(String wardId, int alertLevel) {
