@@ -30,7 +30,14 @@ public class StaffingServiceApp {
                     return;
                 }
 
-                HttpResponse<String> alertResponse = getAlertLevel();
+                HttpResponse<String> alertResponse;
+
+                try {
+                    alertResponse = getAlertLevel();
+                } catch (IOException | InterruptedException e) {
+                    ctx.status(503).result("Alert Level Service is unavailable");
+                    return;
+                }
 
                 if (alertResponse.statusCode() != 200) {
                     ctx.status(502).result("Alert Level Service returned an unexpected response");
