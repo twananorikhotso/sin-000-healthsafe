@@ -6,6 +6,9 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import co.wethinkcode.healthsafe.mq.StaffingEventPublisher;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.jms.JMSException;
 
 public class StaffingServiceApp {
 
@@ -55,6 +58,14 @@ public class StaffingServiceApp {
 
                 StaffingSchedule schedule = createSchedule(wardId, alertLevel);
 
+                try {
+                    String eventJson = OBJECT_MAPPER.writeValueAsString(schedule);
+                    EVENT_PUBLISHER.publish(eventJson);
+                } catch (JMSException e) {
+                    ctx.status(503).result("ActiveMQ broker is unavailable");
+                    return;
+                }
+
                 ctx.contentType("application/json");
                 ctx.json(schedule);
 
@@ -72,6 +83,11 @@ public class StaffingServiceApp {
     private static final String ALERT_SERVICE_URL = "http://localhost:7032";
 
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    private static final StaffingEventPublisher EVENT_PUBLISHER =
+            new StaffingEventPublisher();
 
     private static HttpResponse<String> getWard(String wardId)
             throws IOException, InterruptedException {
