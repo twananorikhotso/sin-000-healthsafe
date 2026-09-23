@@ -31,6 +31,9 @@ public class StaffingEventPublisher {
 
             producer.send(message);
 
+            System.out.println("Published staffing event:");
+            System.out.println(event);
+
             producer.close();
             session.close();
         }

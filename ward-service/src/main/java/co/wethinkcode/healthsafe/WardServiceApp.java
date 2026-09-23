@@ -2,6 +2,7 @@ package co.wethinkcode.healthsafe;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import co.wethinkcode.healthsafe.mq.StaffingEventSubscriber;
 import io.javalin.Javalin;
 
 import java.net.URI;
@@ -19,6 +20,11 @@ public class WardServiceApp {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static void main(String[] args) {
+
+        StaffingEventSubscriber staffingEventSubscriber =
+                new StaffingEventSubscriber();
+
+        staffingEventSubscriber.start();
 
         Javalin app = Javalin.create().start(7031);
 
