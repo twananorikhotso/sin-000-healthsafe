@@ -28,13 +28,12 @@ cleanup through synchronous REST calls to asynchronous MQ decoupling and alertin
 Plus [`common/`](common) (no port) — the shared ActiveMQ broker and MQ config notes
 for `staffing-events-topic`: Staffing updates are broadcast as Events via the broker to decouple the frontend from the Staffing Service.
 
-**Status:** scaffold only — build files, Javalin bootstrap, and TODOs are in place; no
-business logic has been implemented yet.
+**Status:** Implemented — the core REST integration, ActiveMQ staffing topic, and
+equipment failure queue are complete and verified end-to-end.
 
-## Your task
+## Implementation
 
-Each stage below builds on the last — do them in order. Every service already builds
-and runs (`/health` returns `OK`); your job is to fill in the `TODO`s.
+HealthSafe was implemented incrementally through the following integration stages:
 
 1. **Ingestion** (required) — in `IngestionServiceApp`, read and clean
    `wards-outdated.csv` (see [ingestion-service/README.md](ingestion-service/README.md)
@@ -52,11 +51,6 @@ and runs (`/health` returns `OK`); your job is to fill in the `TODO`s.
    `equipment-failure-queue` when it detects an equipment failure, and implement
    `equipment-alert-service` as the guaranteed-delivery consumer (see
    [equipment-alert-service/README.md](equipment-alert-service/README.md)).
-
-Stage 1-2 are the required core; stages 3-4 are where you can show judgment about
-when to reach for a queue/topic instead of a direct call. There's no fixed time
-limit, but budget your effort so you have a working stage 1-2 before spending time
-on 3-4 — a complete core beats a half-done everything.
 
 Automated tests aren't required, but are a good way to show your work — see each
 service's `## Test` section for how to add JUnit 5.
@@ -147,8 +141,8 @@ cd equipment-alert-service && mvn package && java -jar target/equipment-alert-se
 
 ## Test
 
-No automated tests exist yet (this is a scaffold). Each running service exposes
-`/health`, so sanity-check manually:
+Automated tests are included for the ingestion service. The complete system can also
+be verified through the `/health` endpoints and the REST/MQ integration flows.
 
 ```
 curl http://localhost:7030/health   # -> OK

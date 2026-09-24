@@ -53,12 +53,9 @@ from their own directories at the project root).
 docker compose ps          # confirm the broker container is healthy
 ```
 
-Once the TODOs below are implemented, verify end-to-end by publishing a message from
-`staffing-service` and confirming the consumer(s) receive it — e.g. via logs, or by
-watching the topic in the web console.
+Verify the integration end-to-end by requesting a staffing schedule and confirming
+that `staffing-service` publishes the resulting event to `staffing-events-topic`
+and `ward-service` receives it.
 
-## TODO
-
-- Add `activemq-client` publish logic to `staffing-service` on its stage/state-change endpoint.
-- Add `activemq-client` subscriber logic to consumer service(s) above, replacing any
-  direct synchronous calls to `staffing-service`.
+The project also uses `equipment-failure-queue` for critical equipment failure
+events published by `ward-service` and consumed by `equipment-alert-service`.

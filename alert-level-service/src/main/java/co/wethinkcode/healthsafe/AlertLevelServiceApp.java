@@ -35,9 +35,6 @@ public class AlertLevelServiceApp {
             currentAlertLevel = newLevel;
             ctx.json(new AlertLevelResponse(currentAlertLevel));
         });
-
-        // TODO (Tracks the hospital Emergency Status (0-8, 8 = full Code Blue).)
-        // Add domain endpoints for alert-level-service here.
     }
 
     public record AlertLevelResponse(int level) {
