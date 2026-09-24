@@ -223,6 +223,9 @@ public class WardCsvReader {
         return cleaned.isBlank()
                 || cleaned.equalsIgnoreCase("N/A")
                 || cleaned.equalsIgnoreCase("TBD")
-                || cleaned.equalsIgnoreCase("unknown");
+                || cleaned.equalsIgnoreCase("unknown")
+                || cleaned.equals("-")
+                || cleaned.equalsIgnoreCase("NaN");
+
     }
 }

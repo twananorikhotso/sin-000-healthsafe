@@ -39,6 +39,10 @@ public class WardCsvReaderTest {
 
         assertEquals("Unknown", reader.cleanWingName("N/A"));
         assertEquals("Unknown", reader.cleanDepartment("TBD"));
+        assertEquals("Unknown", reader.cleanWingName("-"));
+        assertEquals("Unknown", reader.cleanDepartment("NaN"));
+        assertEquals("0", reader.cleanBedCount("-"));
+        assertEquals("0", reader.cleanBedCount("NaN"));
     }
 
     @Test
