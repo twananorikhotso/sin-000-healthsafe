@@ -121,6 +121,11 @@ public class WardCsvReader {
             return "ICU";
         }
 
+        if (cleaned.equalsIgnoreCase("Pediatrics")
+                || cleaned.equalsIgnoreCase("Paediatrics")) {
+            return "Paediatrics";
+        }
+
         cleaned = cleaned.toLowerCase();
 
         String[] words = cleaned.split(" ");

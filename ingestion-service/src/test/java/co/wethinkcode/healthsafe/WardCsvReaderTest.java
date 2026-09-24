@@ -28,6 +28,8 @@ public class WardCsvReaderTest {
         WardCsvReader reader = new WardCsvReader();
 
         assertEquals("Paediatrics", reader.cleanDepartment("PAEDIATRICS"));
+        assertEquals("Paediatrics", reader.cleanDepartment("Pediatrics"));
+        assertEquals("Paediatrics", reader.cleanDepartment("pediatrics"));
         assertEquals("ICU", reader.cleanDepartment("icu"));
     }
 
