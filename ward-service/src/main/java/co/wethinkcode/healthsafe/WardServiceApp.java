@@ -3,6 +3,7 @@ package co.wethinkcode.healthsafe;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import co.wethinkcode.healthsafe.mq.StaffingEventSubscriber;
+import co.wethinkcode.healthsafe.mq.EquipmentFailurePublisher;
 import io.javalin.Javalin;
 
 import java.net.URI;
@@ -25,6 +26,9 @@ public class WardServiceApp {
                 new StaffingEventSubscriber();
 
         staffingEventSubscriber.start();
+
+        EquipmentFailurePublisher equipmentFailurePublisher =
+                new EquipmentFailurePublisher();
 
         Javalin app = Javalin.create().start(7031);
 
@@ -51,6 +55,65 @@ public class WardServiceApp {
             }
 
             ctx.json(ward);
+        });
+
+        app.post("/wards/{id}/equipment-failures", ctx -> {
+            String wardId = ctx.pathParam("id");
+
+            List<Ward> wards = fetchWards();
+
+            Ward ward = wards.stream()
+                    .filter(item -> item.getWardId().equalsIgnoreCase(wardId))
+                    .findFirst()
+                    .orElse(null);
+
+            if (ward == null) {
+                ctx.status(404).result("Ward not found");
+                return;
+            }
+
+            EquipmentFailureRequest request;
+
+            try {
+                request = objectMapper.readValue(
+                        ctx.body(),
+                        EquipmentFailureRequest.class
+                );
+            } catch (Exception e) {
+                ctx.status(400).result("Invalid equipment failure request");
+                return;
+            }
+
+            if (request.equipment() == null
+                    || request.equipment().isBlank()) {
+                ctx.status(400).result("Equipment is required");
+                return;
+            }
+
+            EquipmentFailureEvent event =
+                    new EquipmentFailureEvent(
+                            ward.getWardId(),
+                            request.equipment().trim(),
+                            "FAILED"
+                    );
+
+            try {
+                String eventJson =
+                        objectMapper.writeValueAsString(event);
+
+                equipmentFailurePublisher.publish(eventJson);
+
+                ctx.status(202).json(event);
+
+            } catch (Exception e) {
+                System.err.println(
+                        "Unable to publish equipment failure: "
+                                + e.getMessage()
+                );
+
+                ctx.status(503)
+                        .result("Unable to publish equipment failure");
+            }
         });
 
         app.get("/departments", ctx -> {
@@ -102,6 +165,16 @@ public class WardServiceApp {
 
             return Collections.emptyList();
         }
+    }
+
+    public record EquipmentFailureRequest(String equipment) {
+    }
+
+    public record EquipmentFailureEvent(
+            String wardId,
+            String equipment,
+            String status
+    ) {
     }
 }
 
